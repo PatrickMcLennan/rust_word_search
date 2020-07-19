@@ -1,10 +1,7 @@
-use std::fs::File;
-use std::fs;
-use std::io::prelude::*;
+use std::fs::File;use std::io::prelude::*;
 use std::io;
 
 enum State {
-    InProgress,
     Found,
     NotFound
 }
@@ -20,8 +17,11 @@ impl Search {
     }
 }
 
-fn search_file(search: &mut Search, file: String) -> () {
-    let mut file = File::open(file).expect("The File could not be opened");
+fn search_file(search: &mut Search, file_name: String) -> (State, u8) {
+    let mut file = match File::open(file_name) {
+        Ok(file_exists) => file_exists,
+        Err(_error) => panic!("That file does not exist")
+    };
     let mut file_contents = String::new();
     file.read_to_string(&mut file_contents).expect("The file could not be read to a string");
 
@@ -33,7 +33,12 @@ fn search_file(search: &mut Search, file: String) -> () {
         }
     }
 
-    return println!("{}", file_contents);
+    if search.count == 0 {
+        return (State::NotFound, search.count)
+    } else {
+        return (State::Found, search.count)
+    }
+
 }
 
 fn main() {
@@ -55,8 +60,14 @@ fn main() {
         Err(_) => println!("There was an error reading your input")
     }
 
-    println!("{}", file_name);
-    println!("{}", word_search.word);
+    let (state, count) = search_file(&mut word_search, file_name);
 
-    search_file(&word_search, file_name);
+    match state {
+        State::Found => {
+            println!("{} was found {} time(s)", word_search.word, count)
+        }
+        State::NotFound => {
+            println!("{} was not found in the file", word_search.word)
+        }
+    }
 }
