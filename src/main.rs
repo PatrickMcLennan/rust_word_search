@@ -1,4 +1,5 @@
 use std::fs::File;use std::io::prelude::*;
+use std::env;
 use std::io;
 
 enum State {
@@ -18,10 +19,14 @@ impl Search {
 }
 
 fn search_file(search: &mut Search, file_name: String) -> (State, u8) {
+    let mut path_string = String::from("/");
+    path_string.push_str(&file_name);
+    println!("{:?}", env::current_dir());
     let mut file = match File::open(file_name) {
         Ok(file_exists) => file_exists,
         Err(_error) => panic!("That file does not exist")
     };
+
     let mut file_contents = String::new();
     file.read_to_string(&mut file_contents).expect("The file could not be read to a string");
 
